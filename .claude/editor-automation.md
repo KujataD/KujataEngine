@@ -153,6 +153,8 @@ wait 60
 | 実行 | `play.start` / `play.stop` | Play / Stop |
 | | `wait <フレーム数>` | 指定フレーム進むのを待ってから返す(Play 中の変化を見るため。待っている間のログも返す) |
 | | `scene.save` | シーンを保存する(Ctrl+S と同じ) |
+| | `scene.create <名前>` / `scene.open <名前>` | 空のシーンを作って開く(Project Settings の Scenes の Create Scene と同じ) / シーンを開く(保存していない変更は捨てる)。どちらも切り替わってから返事をする |
+| | `scene.startup [名前]` | 起動シーンを変える。名前を省くと、今の起動シーンとシーンの一覧 |
 | | `module.reload` | GameModule をビルドし直して差し替える(Reload DLL と同じ) |
 | | `quit` | エディタを終了する |
 

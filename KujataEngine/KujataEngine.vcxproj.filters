@@ -359,6 +359,9 @@
     <ClCompile Include="Editor\ProjectWindow.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
+    <ClCompile Include="Editor\SceneEditing.cpp">
+      <Filter>Editor</Filter>
+    </ClCompile>
     <ClCompile Include="Editor\SceneJsonExporter.cpp">
       <Filter>Editor</Filter>
     </ClCompile>
@@ -889,6 +892,9 @@
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="Editor\ProjectWindow.h">
+      <Filter>Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Editor\SceneEditing.h">
       <Filter>Editor</Filter>
     </ClInclude>
     <ClInclude Include="Editor\SceneJsonExporter.h">

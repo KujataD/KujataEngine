@@ -1,9 +1,13 @@
-// エディタの CUI のコマンド: シーンのオブジェクトとコンポーネントを見る・選ぶ・変えるコマンド。
+// エディタの CUI のコマンド: シーンを作る・開く、シーンのオブジェクトとコンポーネントを見る・選ぶ・変えるコマンド。
 // 設計と一覧は .claude/editor-automation.md。共通の関数は EditorCommandUtil にある。
 #include "EditorCommandUtil.h"
+#include "../EditorApplication.h"
 #include "../EditorCommandServer.h"
+#include "../EditorConsole.h"
 #include "../EditorSelection.h"
+#include "../SceneEditing.h"
 #include "../SceneJsonImporter.h"
+#include "../../runtime/SceneManager.h"
 #include "../../scene/Component.h"
 #include "../../scene/ComponentFactory.h"
 #include "../../scene/GameObject.h"
@@ -448,9 +452,70 @@ EditorCommandResult CommandFieldSet(const EditorCommandArgs& args) {
 	return EditorCommandResult::Success(result);
 }
 
+// scene.open が待つ上限のフレーム数。GameModule が無いなどで切り替わらないとき、返事が止まったままにならないように。
+constexpr int kMaxSceneOpenFrames = 120;
+
+// ChangeScene は次のフレームの境で切り替わるので、新しいシーンに替わってから返事をする。
+EditorCommandResult OpenSceneAndWait(const std::string& name) {
+	if (EditorApplication::GetInstance()->IsPrefabEditing()) {
+		return EditorCommandResult::Failure("プレハブの編集中はシーンを開けません(prefab.close してから開いてください)。");
+	}
+	// 今と同じシーンを開き直す場合もあるので、名前ではなく、シーンが作り直されたかで判断する。
+	const Scene* sceneBefore = GetScene();
+	ChangeScene(name);
+
+	EditorCommandResult pending = EditorCommandResult::Success();
+	pending.poll = [name, sceneBefore, remaining = kMaxSceneOpenFrames](EditorCommandResult& out) mutable {
+		const Scene* scene = GetScene();
+		if (scene && scene != sceneBefore && name == scene->GetSceneName()) {
+			out = EditorCommandResult::Success(json{{"scene", name}});
+			return true;
+		}
+		if (--remaining > 0) {
+			return false;
+		}
+		out = EditorCommandResult::Failure("シーンを開けませんでした(log.tail で理由を確かめてください): " + name);
+		return true;
+	};
+	return pending;
+}
+
+EditorCommandResult CommandSceneOpen(const EditorCommandArgs& args) {
+	const std::string& name = args.Get(0);
+	if (!SceneEditing::Exists(name)) {
+		return EditorCommandResult::Failure("シーンがありません: " + name + "(scene.startup で一覧を表示できます)");
+	}
+	return OpenSceneAndWait(name);
+}
+
+EditorCommandResult CommandSceneCreate(const EditorCommandArgs& args) {
+	const SceneEditing::Result result = SceneEditing::CreateScene(args.Get(0));
+	if (!result.succeeded) {
+		return EditorCommandResult::Failure(result.message);
+	}
+	EditorConsole::GetInstance()->AddLog("[Editor] " + result.message, EditorLogLevel::Info);
+	return OpenSceneAndWait(args.Get(0));
+}
+
+EditorCommandResult CommandSceneStartup(const EditorCommandArgs& args) {
+	EditorApplication* editor = EditorApplication::GetInstance();
+	if (args.Count() == 0) {
+		return EditorCommandResult::Success(json{{"startup", editor->GetStartupSceneName()}, {"scenes", SceneEditing::ListScenes()}});
+	}
+	const std::string& name = args.Get(0);
+	if (!SceneEditing::Exists(name)) {
+		return EditorCommandResult::Failure("シーンがありません: " + name);
+	}
+	editor->SetStartupSceneName(name);
+	return EditorCommandResult::Success(json{{"startup", name}});
+}
+
 } // namespace
 
 void RegisterSceneCommands(EditorCommandRegistry& registry) {
+	registry.Register("scene.create", "scene.create <名前>", "空のシーンを作って開く(Project Settings の Scenes の Create Scene と同じ)", CommandSceneCreate);
+	registry.Register("scene.open", "scene.open <名前>", "シーンを開く(保存していない変更は捨てる)", CommandSceneOpen);
+	registry.Register("scene.startup", "scene.startup [名前]", "起動シーンを変える。名前を省くと、今の起動シーンとシーンの一覧を表示する", CommandSceneStartup);
 	registry.Register("scene.list", "scene.list", "シーンの全オブジェクト(パス・instanceId・有効/無効・コンポーネント)を階層順に表示する", CommandSceneList);
 	registry.Register("object.get", "object.get <オブジェクト>", "オブジェクトのコンポーネントと全フィールドの値を表示する", CommandObjectGet);
 	registry.Register("component.types", "component.types", "追加できるコンポーネントの型名を表示する", CommandComponentTypes);

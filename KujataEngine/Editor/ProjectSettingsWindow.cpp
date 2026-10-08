@@ -15,6 +15,7 @@
 #include "EditorConsole.h"
 #include "EditorSelection.h"
 #include "InputActionEditing.h"
+#include "SceneEditing.h"
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
@@ -277,37 +278,22 @@ void ProjectSettingsWindow::DrawInputActionsPage() {
 
 void ProjectSettingsWindow::DrawScenesPage() {
 #ifdef USE_IMGUI
-	const std::filesystem::path sceneRoot = GetProjectDataRoot() / "SceneJson";
 	const std::string startupScene = EditorApplication::GetInstance()->GetStartupSceneName();
 
-	// SceneJson/<name>/<name>.scene.json を持つフォルダを並べる。ラジオ = 起動シーン、名前 = 開く。
-	if (std::filesystem::exists(sceneRoot)) {
-		std::error_code errorCode;
-		for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(sceneRoot, errorCode)) {
-			if (errorCode) {
-				break;
-			}
-			if (!entry.is_directory()) {
-				continue;
-			}
-			const std::string sceneName = entry.path().filename().string();
-			if (!std::filesystem::exists(entry.path() / (sceneName + ".scene.json"))) {
-				continue;
-			}
-
-			ImGui::PushID(sceneName.c_str());
-			if (ImGui::RadioButton("##startup", sceneName == startupScene)) {
-				EditorApplication::GetInstance()->SetStartupSceneName(sceneName);
-			}
-			if (ImGui::IsItemHovered()) {
-				ImGui::SetTooltip("Startup scene");
-			}
-			ImGui::SameLine();
-			if (ImGui::Selectable(sceneName.c_str())) {
-				ChangeScene(sceneName);
-			}
-			ImGui::PopID();
+	// ラジオ = 起動シーン、名前 = 開く。
+	for (const std::string& sceneName : SceneEditing::ListScenes()) {
+		ImGui::PushID(sceneName.c_str());
+		if (ImGui::RadioButton("##startup", sceneName == startupScene)) {
+			EditorApplication::GetInstance()->SetStartupSceneName(sceneName);
 		}
+		if (ImGui::IsItemHovered()) {
+			ImGui::SetTooltip("Startup scene");
+		}
+		ImGui::SameLine();
+		if (ImGui::Selectable(sceneName.c_str())) {
+			ChangeScene(sceneName);
+		}
+		ImGui::PopID();
 	}
 
 	ImGui::Separator();
@@ -316,16 +302,14 @@ void ProjectSettingsWindow::DrawScenesPage() {
 	ImGui::SameLine();
 	if (ImGui::Button("Create Scene") && newSceneName_[0] != '\0') {
 		const std::string sceneName = newSceneName_;
-		const std::filesystem::path sceneDir = sceneRoot / sceneName;
-		std::error_code errorCode;
-		std::filesystem::create_directories(sceneDir, errorCode);
-		const std::filesystem::path sceneFile = sceneDir / (sceneName + ".scene.json");
-		if (!std::filesystem::exists(sceneFile)) {
-			std::ofstream ofs(sceneFile);
-			ofs << "{\n  \"assetType\": \"Scene\",\n  \"name\": \"" << sceneName << "\",\n  \"gameObjects\": []\n}\n";
+		const SceneEditing::Result result = SceneEditing::CreateScene(sceneName);
+		// 既にある名前なら、作らずにそのシーンを開く。
+		if (result.succeeded || SceneEditing::Exists(sceneName)) {
+			ChangeScene(sceneName);
+			newSceneName_[0] = '\0';
+		} else {
+			EditorConsole::GetInstance()->AddLog(result.message, EditorLogLevel::Error);
 		}
-		ChangeScene(sceneName);
-		newSceneName_[0] = '\0';
 	}
 #endif // USE_IMGUI
 }

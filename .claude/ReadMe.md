@@ -62,7 +62,7 @@ kujata material.set Materials/Toon.material.json shaderModel 8  # マテリア�
 
 - ウィンドウのドッキング配置・位置・大きさと、各ウィンドウを開いているか閉じているか(Window メニュー)は `KujataEngine/imgui.ini` に保存され、次回起動時に戻る(人ごとに違うので git 管理外)
 - 初期配置に戻すときは Window → Reset Layout。`imgui.ini` を消して起動しても初期配置になる
-- プロジェクトの設定は Edit → **Project Settings** にまとめてある(Unity と同じ)。左の一覧で Input Actions / Scenes / Rendering を選ぶ。CUI では `window.show InputActions` のようにページ名で開ける
+- プロジェクトの設定は Edit → **Project Settings** にまとめてある(Unity と同じ)。左の一覧で Input Actions / Scenes / Rendering を選ぶ。CUI では `window.show InputActions` のようにページ名で開ける。シーンの作成・切り替え・起動シーンの変更は `scene.create` / `scene.open` / `scene.startup` でもできる
 - Inspector のコンポーネントの項目(Transform など)は最初は閉じている。見出しをクリックで開く
 
 ### スクリプト(コンポーネント)を作る

@@ -256,6 +256,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Editor\PrefabAsset.cpp" />
     <ClCompile Include="Editor\ProjectAssetClassifier.cpp" />
     <ClCompile Include="Editor\ProjectWindow.cpp" />
+    <ClCompile Include="Editor\SceneEditing.cpp" />
     <ClCompile Include="Editor\SceneJsonExporter.cpp" />
     <ClCompile Include="Editor\GameViewWindow.cpp" />
     <ClCompile Include="Editor\PerformanceWindow.cpp" />
@@ -434,6 +435,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Editor\PrefabAsset.h" />
     <ClInclude Include="Editor\ProjectAssetClassifier.h" />
     <ClInclude Include="Editor\ProjectWindow.h" />
+    <ClInclude Include="Editor\SceneEditing.h" />
     <ClInclude Include="Editor\SceneJsonExporter.h" />
     <ClInclude Include="Editor\GameViewWindow.h" />
     <ClInclude Include="Editor\PerformanceWindow.h" />
