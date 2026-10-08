@@ -34,6 +34,7 @@ public:
 	// ここに書いた項目は、保存・読み込み・Inspector の表示・Undo・参照の解決が自動で行われる。
 	KUJATA_SERIALIZED_FIELDS_BEGIN() {
 		// (変数, ドラッグの速さ, 最小, 最大, ツールチップ)。最小と最大を両方 0 にすると範囲なし。
+		// 変数より後ろは後ろから省略できる(例: KUJATA_REGISTER_FLOAT_TIP(speed_) / KUJATA_REGISTER_FLOAT_TIP(speed_, 0.1f, 0.0f, 100.0f))。
 		KUJATA_REGISTER_FLOAT_TIP(speed_, 0.1f, 0.0f, 100.0f, "速さ (m/秒)");
 		KUJATA_REGISTER_BOOL_TIP(active_, "false にすると Update で何もしない");
 		KUJATA_REGISTER_VECTOR3_TIP(offset_, 0.01f, 0.0f, 0.0f, "位置のずれ (m)");

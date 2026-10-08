@@ -30,6 +30,36 @@ void Scene::Initialize() {
 }
 
 void Scene::Update() {
+	// 固定の間隔の更新(Component::FixedUpdate)。溜めた時間が 1 回分を超えるたびに呼ぶ。
+	// 時間スケールは溜める時間に掛かる(GetDeltaTime)ので、スローでは呼ばれる回数が減り、1 回の dt は変わらない。
+	// 1 フレームに回す回数には上限を置き、超えた分は捨てる(重いフレームのあとに大量に回して、さらに重くなるのを防ぐ)。
+	{
+		constexpr int kMaxFixedStepsPerFrame = 5;
+		fixedTimeAccumulator_ += Time::GetDeltaTime();
+		int steps = 0;
+		while (fixedTimeAccumulator_ >= Time::GetFixedDeltaTime() && steps < kMaxFixedStepsPerFrame) {
+			// Update と同じ理由で添字で回す(途中で増えたオブジェクトも安全に扱える)。
+			for (size_t index = 0; index < gameObjects_.size(); ++index) {
+				GameObject* gameObject = gameObjects_[index].get();
+				if (!gameObject || !gameObject->IsActiveInHierarchy()) {
+					continue;
+				}
+				std::vector<std::unique_ptr<Component>>& components = gameObject->GetComponents();
+				for (size_t componentIndex = 0; componentIndex < components.size(); ++componentIndex) {
+					Component* component = components[componentIndex].get();
+					if (component && component->IsEnabled()) {
+						component->FixedUpdate();
+					}
+				}
+			}
+			fixedTimeAccumulator_ -= Time::GetFixedDeltaTime();
+			++steps;
+		}
+		if (steps == kMaxFixedStepsPerFrame) {
+			fixedTimeAccumulator_ = 0.0f;
+		}
+	}
+
 	// ゲームロジック(Component::Update)がSetVeloc/移動を行う → 速度積分 → 衝突検出+応答 の順。
 	//
 	// **添字で回すこと。範囲forは使えない。**
@@ -50,6 +80,22 @@ void Scene::Update() {
 	{
 		FrameProfiler::Scope profile(FrameProfiler::kCollision);
 		collisionSystem_.Update(*this);
+	}
+
+	// 最後の更新(Component::LateUpdate)。物理と当たり判定で位置が決まった後に呼ぶ。
+	// ここで動かした物も、描く前の PrepareFrame でワールド行列が更新されるので、このフレームの描画に間に合う。
+	for (size_t index = 0; index < gameObjects_.size(); ++index) {
+		GameObject* gameObject = gameObjects_[index].get();
+		if (!gameObject || !gameObject->IsActiveInHierarchy()) {
+			continue;
+		}
+		std::vector<std::unique_ptr<Component>>& components = gameObject->GetComponents();
+		for (size_t componentIndex = 0; componentIndex < components.size(); ++componentIndex) {
+			Component* component = components[componentIndex].get();
+			if (component && component->IsEnabled()) {
+				component->LateUpdate();
+			}
+		}
 	}
 }
 
@@ -77,6 +123,8 @@ void Scene::OnPlayStart() {
 	// 時間スケールも必ず等速へ戻す。ポーズ(死亡メニュー等)で0にしたままStopされると、
 	// **次のPlayが止まったまま始まる**(戻す責任はSetTimeScaleを呼んだ側にあるが、保険をここに置く)。
 	Time::SetTimeScale(1.0f);
+	// FixedUpdate の溜めも持ち越さない(前の Play の端数で、最初の更新の回数が変わらないように)。
+	fixedTimeAccumulator_ = 0.0f;
 
 	for (const std::unique_ptr<GameObject>& gameObject : gameObjects_) {
 		if (gameObject) {

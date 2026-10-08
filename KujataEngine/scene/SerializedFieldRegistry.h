@@ -90,12 +90,12 @@ public:
 		*schema_ = nlohmann::json::array();
 	}
 
-	void Float(const char* memberName, float& value, float dragSpeed, float minValue, float maxValue, const char* tooltip = nullptr) {
+	void Float(const char* memberName, float& value, float dragSpeed = 0.1f, float minValue = 0.0f, float maxValue = 0.0f, const char* tooltip = nullptr) {
 		std::string key = MakeJsonKey(memberName);
 		FloatNamed(key.c_str(), MakeDisplayName(key).c_str(), value, dragSpeed, minValue, maxValue, tooltip);
 	}
 
-	void FloatNamed(const char* jsonKey, const char* label, float& value, float dragSpeed, float minValue, float maxValue, const char* tooltip = nullptr) {
+	void FloatNamed(const char* jsonKey, const char* label, float& value, float dragSpeed = 0.1f, float minValue = 0.0f, float maxValue = 0.0f, const char* tooltip = nullptr) {
 		if (mode_ == Mode::DescribeSchema) {
 			AddSchema(jsonKey, label, "float", tooltip, minValue, maxValue, dragSpeed);
 			return;
@@ -128,12 +128,12 @@ public:
 		}
 	}
 
-	void Int(const char* memberName, int& value, float dragSpeed, int minValue, int maxValue, const char* tooltip = nullptr) {
+	void Int(const char* memberName, int& value, float dragSpeed = 1.0f, int minValue = 0, int maxValue = 0, const char* tooltip = nullptr) {
 		std::string key = MakeJsonKey(memberName);
 		IntNamed(key.c_str(), MakeDisplayName(key).c_str(), value, dragSpeed, minValue, maxValue, tooltip);
 	}
 
-	void IntNamed(const char* jsonKey, const char* label, int& value, float dragSpeed, int minValue, int maxValue, const char* tooltip = nullptr) {
+	void IntNamed(const char* jsonKey, const char* label, int& value, float dragSpeed = 1.0f, int minValue = 0, int maxValue = 0, const char* tooltip = nullptr) {
 		if (mode_ == Mode::DescribeSchema) {
 			AddSchema(jsonKey, label, "int", tooltip, minValue, maxValue, dragSpeed);
 			return;
@@ -159,12 +159,12 @@ public:
 		}
 	}
 
-	void UInt32(const char* memberName, uint32_t& value, float dragSpeed, uint32_t minValue, uint32_t maxValue, const char* tooltip = nullptr) {
+	void UInt32(const char* memberName, uint32_t& value, float dragSpeed = 1.0f, uint32_t minValue = 0, uint32_t maxValue = 0, const char* tooltip = nullptr) {
 		std::string key = MakeJsonKey(memberName);
 		UInt32Named(key.c_str(), MakeDisplayName(key).c_str(), value, dragSpeed, minValue, maxValue, tooltip);
 	}
 
-	void UInt32Named(const char* jsonKey, const char* label, uint32_t& value, float dragSpeed, uint32_t minValue, uint32_t maxValue, const char* tooltip = nullptr) {
+	void UInt32Named(const char* jsonKey, const char* label, uint32_t& value, float dragSpeed = 1.0f, uint32_t minValue = 0, uint32_t maxValue = 0, const char* tooltip = nullptr) {
 		if (mode_ == Mode::DescribeSchema) {
 			AddSchema(jsonKey, label, "uint32", tooltip, static_cast<double>(minValue), static_cast<double>(maxValue), dragSpeed);
 			return;
@@ -280,12 +280,12 @@ public:
 		}
 	}
 
-	void Vector3Field(const char* memberName, Vector3& value, float dragSpeed, float minValue, float maxValue, const char* tooltip = nullptr) {
+	void Vector3Field(const char* memberName, Vector3& value, float dragSpeed = 0.01f, float minValue = 0.0f, float maxValue = 0.0f, const char* tooltip = nullptr) {
 		std::string key = MakeJsonKey(memberName);
 		Vector3Named(key.c_str(), MakeDisplayName(key).c_str(), value, dragSpeed, minValue, maxValue, tooltip);
 	}
 
-	void Vector3Named(const char* jsonKey, const char* label, Vector3& value, float dragSpeed, float minValue, float maxValue, const char* tooltip = nullptr) {
+	void Vector3Named(const char* jsonKey, const char* label, Vector3& value, float dragSpeed = 0.01f, float minValue = 0.0f, float maxValue = 0.0f, const char* tooltip = nullptr) {
 		if (mode_ == Mode::DescribeSchema) {
 			AddSchema(jsonKey, label, "vector3", tooltip, minValue, maxValue, dragSpeed);
 			return;
@@ -322,12 +322,12 @@ public:
 		}
 	}
 
-	void Vector4Field(const char* memberName, Vector4& value, float dragSpeed, float minValue, float maxValue, const char* tooltip = nullptr) {
+	void Vector4Field(const char* memberName, Vector4& value, float dragSpeed = 0.01f, float minValue = 0.0f, float maxValue = 0.0f, const char* tooltip = nullptr) {
 		std::string key = MakeJsonKey(memberName);
 		Vector4Named(key.c_str(), MakeDisplayName(key).c_str(), value, dragSpeed, minValue, maxValue, tooltip);
 	}
 
-	void Vector4Named(const char* jsonKey, const char* label, Vector4& value, float dragSpeed, float minValue, float maxValue, const char* tooltip = nullptr) {
+	void Vector4Named(const char* jsonKey, const char* label, Vector4& value, float dragSpeed = 0.01f, float minValue = 0.0f, float maxValue = 0.0f, const char* tooltip = nullptr) {
 		if (mode_ == Mode::DescribeSchema) {
 			// Inspectorでは色(RGBA)として編集している。範囲は使っていないので出さない。
 			AddSchema(jsonKey, label, "color", tooltip);
@@ -710,39 +710,47 @@ private: \
 //   KUJATA_REGISTER_FLOAT_TIP(stepThreshold_, 0.01f, 0.05f, 20.0f,
 //       "足が定位置からこれだけ水平にズレたら踏み出す。大きいほど大股でのっしり歩く");
 //
-#define KUJATA_REGISTER_FLOAT_TIP(member, dragSpeed, minValue, maxValue, tooltip) registry.Float(#member, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_FLOAT_NAMED_TIP(member, label, dragSpeed, minValue, maxValue, tooltip) registry.FloatNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_INT_TIP(member, dragSpeed, minValue, maxValue, tooltip) registry.Int(#member, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_INT_NAMED_TIP(member, label, dragSpeed, minValue, maxValue, tooltip) registry.IntNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_UINT32_TIP(member, dragSpeed, minValue, maxValue, tooltip) registry.UInt32(#member, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_UINT32_NAMED_TIP(member, label, dragSpeed, minValue, maxValue, tooltip) registry.UInt32Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_BOOL_TIP(member, tooltip) registry.Bool(#member, member, tooltip)
-#define KUJATA_REGISTER_BOOL_NAMED_TIP(member, label, tooltip) registry.BoolNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, tooltip)
-#define KUJATA_REGISTER_VECTOR3_TIP(member, dragSpeed, minValue, maxValue, tooltip) registry.Vector3Field(#member, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_VECTOR3_NAMED_TIP(member, label, dragSpeed, minValue, maxValue, tooltip) registry.Vector3Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_VECTOR4_TIP(member, dragSpeed, minValue, maxValue, tooltip) registry.Vector4Field(#member, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_VECTOR4_NAMED_TIP(member, label, dragSpeed, minValue, maxValue, tooltip) registry.Vector4Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue, tooltip)
-#define KUJATA_REGISTER_STRING_TIP(member, tooltip) registry.String(#member, member, tooltip)
-#define KUJATA_REGISTER_STRING_NAMED_TIP(member, label, tooltip) registry.StringNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, tooltip)
-#define KUJATA_REGISTER_OBJECT_TIP(member, tooltip) registry.Object(#member, member, tooltip)
-#define KUJATA_REGISTER_OBJECT_NAMED_TIP(member, label, tooltip) registry.ObjectNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, tooltip)
+// 変数より後ろの引数は後ろから省略できる(省略した分は登録の関数の初期値になる)。
+//   KUJATA_REGISTER_FLOAT_TIP(slowScale_);                    // 刻み・範囲・説明すべて省略
+//   KUJATA_REGISTER_FLOAT_TIP(slowScale_, 0.01f, 0.0f, 1.0f); // 説明だけ省略
+// 初期値: 刻みは float 0.1 / int・uint32 1 / Vector3・Vector4 0.01、範囲は 最小 = 最大 = 0(範囲なし)、説明はなし。
+// 途中の引数だけを省略することはできない(C++ の初期値は後ろから順に省略する決まりのため)。
+// 範囲を省略すると負の値なども入るので、範囲と説明はなるべく書くこと。
+// ##__VA_ARGS__ は、後ろの引数が無いときに直前のカンマを消す(MSVC の従来/準拠どちらのプリプロセッサでも効く)。
+#define KUJATA_REGISTER_FLOAT_TIP(member, ...) registry.Float(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_FLOAT_NAMED_TIP(member, label, ...) registry.FloatNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_INT_TIP(member, ...) registry.Int(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_INT_NAMED_TIP(member, label, ...) registry.IntNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_UINT32_TIP(member, ...) registry.UInt32(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_UINT32_NAMED_TIP(member, label, ...) registry.UInt32Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_BOOL_TIP(member, ...) registry.Bool(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_BOOL_NAMED_TIP(member, label, ...) registry.BoolNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR3_TIP(member, ...) registry.Vector3Field(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR3_NAMED_TIP(member, label, ...) registry.Vector3Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR4_TIP(member, ...) registry.Vector4Field(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR4_NAMED_TIP(member, label, ...) registry.Vector4Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_STRING_TIP(member, ...) registry.String(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_STRING_NAMED_TIP(member, label, ...) registry.StringNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_OBJECT_TIP(member, ...) registry.Object(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_OBJECT_NAMED_TIP(member, label, ...) registry.ObjectNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
 
-#define KUJATA_REGISTER_FLOAT(member, dragSpeed, minValue, maxValue) registry.Float(#member, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_FLOAT_NAMED(member, label, dragSpeed, minValue, maxValue) registry.FloatNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_INT(member, dragSpeed, minValue, maxValue) registry.Int(#member, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_INT_NAMED(member, label, dragSpeed, minValue, maxValue) registry.IntNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_UINT32(member, dragSpeed, minValue, maxValue) registry.UInt32(#member, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_UINT32_NAMED(member, label, dragSpeed, minValue, maxValue) registry.UInt32Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue)
+// 説明なしの版も、変数より後ろの引数を後ろから省略できる(KUJATA_REGISTER_FLOAT(speed_) など)。
+#define KUJATA_REGISTER_FLOAT(member, ...) registry.Float(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_FLOAT_NAMED(member, label, ...) registry.FloatNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_INT(member, ...) registry.Int(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_INT_NAMED(member, label, ...) registry.IntNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_UINT32(member, ...) registry.UInt32(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_UINT32_NAMED(member, label, ...) registry.UInt32Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
 #define KUJATA_REGISTER_BOOL(member) registry.Bool(#member, member)
 #define KUJATA_REGISTER_BOOL_NAMED(member, label) registry.BoolNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member)
 #define KUJATA_REGISTER_BOOL_AXES(label, memberX, memberY, memberZ)                                    \
 	registry.BoolAxes(label, KujataEngine::SerializedFieldRegistry::MakeJsonKey(#memberX).c_str(), memberX, \
 	                  KujataEngine::SerializedFieldRegistry::MakeJsonKey(#memberY).c_str(), memberY,        \
 	                  KujataEngine::SerializedFieldRegistry::MakeJsonKey(#memberZ).c_str(), memberZ)
-#define KUJATA_REGISTER_VECTOR3(member, dragSpeed, minValue, maxValue) registry.Vector3Field(#member, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_VECTOR3_NAMED(member, label, dragSpeed, minValue, maxValue) registry.Vector3Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_VECTOR4(member, dragSpeed, minValue, maxValue) registry.Vector4Field(#member, member, dragSpeed, minValue, maxValue)
-#define KUJATA_REGISTER_VECTOR4_NAMED(member, label, dragSpeed, minValue, maxValue) registry.Vector4Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, dragSpeed, minValue, maxValue)
+#define KUJATA_REGISTER_VECTOR3(member, ...) registry.Vector3Field(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR3_NAMED(member, label, ...) registry.Vector3Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR4(member, ...) registry.Vector4Field(#member, member, ##__VA_ARGS__)
+#define KUJATA_REGISTER_VECTOR4_NAMED(member, label, ...) registry.Vector4Named(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member, ##__VA_ARGS__)
 #define KUJATA_REGISTER_STRING(member) registry.String(#member, member)
 #define KUJATA_REGISTER_STRING_NAMED(member, label) registry.StringNamed(KujataEngine::SerializedFieldRegistry::MakeJsonKey(#member).c_str(), label, member)
 #define KUJATA_REGISTER_OBJECT(member) registry.Object(#member, member)

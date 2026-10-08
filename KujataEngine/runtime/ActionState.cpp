@@ -23,15 +23,15 @@ bool ActionState::Held(const std::string& name) const {
 }
 
 bool ActionState::Pressed(const std::string& name) const {
-	const Value now = Find(current_, name);
-	const Value before = Find(previous_, name);
-	return (now.x != 0 || now.y != 0) && before.x == 0 && before.y == 0;
+	const Value current = Find(current_, name);
+	const Value prev = Find(previous_, name);
+	return (current.x != 0 || current.y != 0) && prev.x == 0 && prev.y == 0;
 }
 
 bool ActionState::Released(const std::string& name) const {
-	const Value now = Find(current_, name);
-	const Value before = Find(previous_, name);
-	return now.x == 0 && now.y == 0 && (before.x != 0 || before.y != 0);
+	const Value current = Find(current_, name);
+	const Value prev = Find(previous_, name);
+	return current.x == 0 && current.y == 0 && (prev.x != 0 || prev.y != 0);
 }
 
 float ActionState::Axis1D(const std::string& name) const {
