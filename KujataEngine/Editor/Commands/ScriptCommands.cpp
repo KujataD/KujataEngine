@@ -69,7 +69,7 @@ void RegisterScriptCommands(EditorCommandRegistry& registry) {
 	                  "コンポーネントのひな形(.h / .cpp)を作り、GameModule をビルドし直す(Project の Create > Script と同じ)", CommandScriptCreate);
 	registry.Register("folder.create", "folder.create <パス>", "プロジェクトの中にフォルダを作る(Project の Create > Folder と同じ)", CommandFolderCreate);
 	registry.Register("project.sync", "project.sync",
-	                  "プロジェクトの中の .cpp / .h を GameModule.vcxproj に並べ直す(スクリプトの作成・DLL の読み直し・起動のときにも自動で行う)", CommandProjectSync);
+	                  "GameModule.vcxproj をワイルドカードの形に保ち、.filters にプロジェクトの中の .cpp / .h を並べ直す(スクリプトの作成・DLL の読み直し・起動のときにも自動で行う)", CommandProjectSync);
 }
 
 } // namespace KujataEngine

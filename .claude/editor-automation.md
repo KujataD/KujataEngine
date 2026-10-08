@@ -139,7 +139,7 @@ wait 60
 | | `action.type <名前> <種類>` / `action.bind <名前> <割り当て>` / `action.unbind <名前> <割り当て>` | 種類を変える(合わない割り当ては外れる) / 割り当てを足す / 外す |
 | | `action.bindings` | 種類ごとに使える割り当ての名前 |
 | スクリプト | `script.create <名前> [フォルダ]` | コンポーネントのひな形(.h / .cpp)を作り、GameModule をビルドし直す(Project の Create → Script と同じ)。フォルダはプロジェクト基準、既定は `GameComponents` |
-| | `project.sync` | プロジェクトの中の .cpp / .h を `GameModule.vcxproj` と `.filters` に並べ直す(変わったときだけ書く。スクリプトの作成・DLL の読み直し・起動のときにも自動で行う) |
+| | `project.sync` | `GameModule.vcxproj` をワイルドカードの形に保ち、`.filters` にプロジェクトの中の .cpp / .h を並べ直す(変わったときだけ書く。スクリプトの作成・DLL の読み直し・起動のときにも自動で行う) |
 | | `folder.create <パス>` | プロジェクトの中にフォルダを作る(Project の Create → Folder と同じ。例 `folder.create GameComponents/Player`) |
 | 選択 | `select <オブジェクト>` / `select none` | Hierarchy の選択を変える |
 | 編集 | `object.create <名前> [親]` | 空のオブジェクトを作る |

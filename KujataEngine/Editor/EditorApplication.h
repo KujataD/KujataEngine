@@ -78,7 +78,7 @@ public:
 
 	bool ReloadGameModule();
 
-	/// <summary>プロジェクトの中の .cpp / .h を GameModule.vcxproj に並べ直す(GameProjectSync)。</summary>
+	/// <summary>GameModule のプロジェクトを、プロジェクトの中の .cpp / .h に合わせる(GameProjectSync)。</summary>
 	void SyncGameProjectFiles();
 
 	Scene* GetCurrentScene() const;

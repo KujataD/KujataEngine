@@ -19,7 +19,7 @@ namespace GameProjectSync {
 namespace {
 
 struct SourceFile {
-	// vcxproj から見たパス(例 "..\GameComponents\Player\PlayerComponent.cpp")。
+	// vcxproj から見たパス(例 "..\GameComponents\Player\PlayerComponent.cpp"、"..\GameModule\GameModule.cpp")。
 	std::string include;
 	// フィルター(例 "GameComponents\Player")。GameModule フォルダ直下は空(プロジェクト直下に出す)。
 	std::string filter;
@@ -58,7 +58,9 @@ std::vector<SourceFile> CollectSources(const std::filesystem::path& projectRoot,
 
 		SourceFile source;
 		source.isHeader = isHeader;
-		source.include = ToBackslash(ToUtf8(path.lexically_relative(moduleDir)));
+		// vcxproj のワイルドカード(..\**\*.cpp)が出す形と同じにする(GameModule 直下も "..\GameModule\..." になる)。
+		// 形が違うと、.filters のフォルダ分けが Visual Studio に効かない。
+		source.include = "..\\" + ToBackslash(ToUtf8(path.lexically_relative(projectRoot)));
 		const std::filesystem::path folder = path.parent_path().lexically_relative(projectRoot);
 		if (path.parent_path() != moduleDir && folder != ".") {
 			source.filter = ToBackslash(ToUtf8(folder));
@@ -105,7 +107,7 @@ bool WriteIfChanged(const std::filesystem::path& path, const TextFile& original,
 	return true;
 }
 
-// 既存の、ソースだけを並べた <ItemGroup> を取り除き、取り除いた最初の場所を返す。
+// 既存の、ソースだけを並べた <ItemGroup> と、空の <ItemGroup> を取り除き、取り除いた最初の場所を返す。
 size_t RemoveSourceItemGroups(std::string& text) {
 	size_t insertAt = std::string::npos;
 	size_t position = 0;
@@ -119,7 +121,9 @@ size_t RemoveSourceItemGroups(std::string& text) {
 		const bool hasSources = block.find("<ClCompile Include") != std::string::npos || block.find("<ClInclude Include") != std::string::npos;
 		const bool hasOthers = block.find("<ProjectConfiguration") != std::string::npos || block.find("<ProjectReference") != std::string::npos ||
 		                       block.find("<None ") != std::string::npos || block.find("<Filter ") != std::string::npos;
-		if (!hasSources || hasOthers) {
+		const std::string inner = block.substr(std::string("<ItemGroup>").size(), end - position - std::string("<ItemGroup>").size());
+		const bool isEmpty = inner.find_first_not_of(" \t\r\n") == std::string::npos;
+		if (!isEmpty && (!hasSources || hasOthers)) {
 			position = blockEnd;
 			continue;
 		}
@@ -141,17 +145,16 @@ size_t RemoveSourceItemGroups(std::string& text) {
 	return insertAt;
 }
 
-std::string BuildItemGroups(const std::vector<SourceFile>& sources, const std::string& nl) {
-	std::string text;
-	for (const bool headers : {false, true}) {
-		text += "  <ItemGroup>" + nl;
-		for (const SourceFile& source : sources) {
-			if (source.isHeader == headers) {
-				text += std::string("    <") + (headers ? "ClInclude" : "ClCompile") + " Include=\"" + source.include + "\" />" + nl;
-			}
-		}
-		text += "  </ItemGroup>" + nl;
-	}
+// vcxproj にはファイルを並べず、ワイルドカードで全部入れる(中身はいつも同じなので、ファイルを足しても vcxproj は変わらず、git で衝突しない)。
+// 入れないフォルダは CollectSources と同じにする(Data・Temp・GameModule の bin と Temp・"." で始まるフォルダ)。
+std::string BuildItemGroups(const std::string& nl) {
+	// 除外もワイルドカードと同じ "..\" から書く(bin\** のように書くと、..\GameModule\bin\... に当たらない)。
+	const std::string exclude = "..\\Data\\**;..\\Temp\\**;..\\GameModule\\bin\\**;..\\GameModule\\Temp\\**;..\\**\\.*\\**";
+	std::string text = "  <ItemGroup>" + nl;
+	text += "    <!-- ソースはワイルドカードで入れる(エディタの GameProjectSync が書く。手で編集しない)。 -->" + nl;
+	text += "    <ClCompile Include=\"..\\**\\*.cpp\" Exclude=\"" + exclude + "\" />" + nl;
+	text += "    <ClInclude Include=\"..\\**\\*.h;..\\**\\*.hpp\" Exclude=\"" + exclude + "\" />" + nl;
+	text += "  </ItemGroup>" + nl;
 	return text;
 }
 
@@ -260,7 +263,7 @@ Result Sync() {
 		result.message = "GameModule.vcxproj の形が想定と違うため、書き直しませんでした";
 		return result;
 	}
-	projectText.insert(insertAt, BuildItemGroups(sources, project.newline));
+	projectText.insert(insertAt, BuildItemGroups(project.newline));
 
 	TextFile filters;
 	ReadTextFile(filtersPath, filters);
@@ -271,8 +274,8 @@ Result Sync() {
 	const bool filtersChanged = WriteIfChanged(filtersPath, filters, filtersText);
 	result.succeeded = true;
 	result.changed = projectChanged || filtersChanged;
-	result.message = result.changed ? "GameModule.vcxproj にソースを並べ直しました(" + std::to_string(result.sourceCount) + " 個)"
-	                                : "GameModule.vcxproj は最新です";
+	result.message = result.changed ? "GameModule のプロジェクトを更新しました(ソース " + std::to_string(result.sourceCount) + " 個)"
+	                                : "GameModule のプロジェクトは最新です";
 	return result;
 }
 

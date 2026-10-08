@@ -382,6 +382,9 @@ KujataEngine/Temp/
 # HotReload用ゲームDLLのビルド出力(GameModule.vcxprojのOutDir)
 DirectXGame/GameModule/bin/
 
+# GameModule の Solution Explorer のフォルダ表示。エディタ(GameProjectSync)が各自の PC で作る(git に入れると衝突するため)
+DirectXGame/GameModule/GameModule.vcxproj.filters
+
 # エンジン実行時ログ
 KujataEngine/logs/
 

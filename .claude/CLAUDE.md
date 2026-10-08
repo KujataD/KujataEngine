@@ -38,7 +38,7 @@
   - 新しいエディタ機能を作ったら、その操作もコマンドとして登録する(`Editor/Commands/` の分野ごとのファイル。共通の関数は `EditorCommandUtil`)。UI にしかない操作を増やさない。処理は UI とコマンドの両方から呼べる関数に置く(例: `Editor/PrefabEditing`・`Editor/AnimationEditing`)。
   - **KujataEngine で `prefab.create` / `animation.createClip` / `scene.save` などを試すと、`DirectXGame/Data` にファイルができる**(テンプレートを変えない決まりに反する)。試した後は消してからコミットする。
   - 新しく書くログは重さを明示して出す(`EditorConsole::AddLog(message, EditorLogLevel::Error)` など)。
-  - フィールドを書き換える前に `schema.get <型名>` で型・範囲・説明を確かめる。新しいコンポーネントは `KUJATA_SERIALIZED_FIELDS_BEGIN` で登録する(手書きの DrawInspector/WriteJson だと型情報が推測になる)。ゲームのコンポーネントは `script.create`(Project の Create → Script)でひな形から作り、`.cpp` 末尾の `KUJATA_REGISTER_GAME_COMPONENT(型名);` で登録する(`GameModule.cpp` には書かない)。`GameModule.vcxproj` のソースの一覧はエディタ(`GameProjectSync`)が書き直すので、手で編集しない。
+  - フィールドを書き換える前に `schema.get <型名>` で型・範囲・説明を確かめる。新しいコンポーネントは `KUJATA_SERIALIZED_FIELDS_BEGIN` で登録する(手書きの DrawInspector/WriteJson だと型情報が推測になる)。ゲームのコンポーネントは `script.create`(Project の Create → Script)でひな形から作り、`.cpp` 末尾の `KUJATA_REGISTER_GAME_COMPONENT(型名);` で登録する(`GameModule.cpp` には書かない)。`GameModule.vcxproj` はソースをワイルドカード(`..\**\*.cpp` など)で入れるので、ファイルを足しても書き換えない(git で衝突させないため)。その部分はエディタ(`GameProjectSync`)が保つので手で編集しない。ファイルは Visual Studio の「追加」ではなくエディタ(`script.create`)で足す(VS はワイルドカードを 1 つずつの一覧に書き直すことがある)。`GameModule.vcxproj.filters`(フォルダ表示)は `GameProjectSync` が各自の PC で作り、git に入れない。
 - **Component 等の共有ヘッダ(ABI)を変更したら、必ず .sln 経由で exe と GameModule を同時に再ビルド**すること。片方だけ古いと起動時にエントリポイントエラーで落ちる。
 - Release 確認時は Rebuild 禁止(自動 Play で確認可。マウスは効くがキー注入は届かない)。
 - **ビルドや確認のとき、エンジン(exe)が起動中ならプロセスを終了してよい**(確認は不要)。起動中だと exe を上書きできず LNK1168 でリンクが失敗する。

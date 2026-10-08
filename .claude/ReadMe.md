@@ -74,7 +74,9 @@ kujata material.set Materials/Toon.material.json shaderModel 8  # マテリア�
 - **`LateUpdate`** は、毎フレーム 1 回、全部の `Update`・Rigidbody の積分・当たり判定の後に呼ばれる(`void LateUpdate() override;`)。カメラの追従など、その更新で動いた後の位置を使う処理に使う。1 フレームの順番は `FixedUpdate`(0〜数回)→ `Update` → 物理・当たり判定 → `LateUpdate`
 - `KUJATA_REGISTER_*` の、変数より後ろの引数(ドラッグの刻み・最小・最大・説明)は後ろから省略できる。`KUJATA_REGISTER_FLOAT_TIP(speed_)` だけでもよい(刻みは float 0.1 / int 1 / Vector3・Vector4 0.01、範囲なし、説明なし)。途中だけの省略はできない。範囲と説明はなるべく書く
 - 登録は `.cpp` の末尾の `KUJATA_REGISTER_GAME_COMPONENT(型名);` の 1 行で済む(`GameModule.cpp` に書き足さなくてよい)。手で書いたコンポーネントも、この 1 行を書けば登録される
-- `DirectXGame/` の中ならどのフォルダに置いてもよい(サブフォルダも可。`Data`・`Temp`・`GameModule/bin` は除く)。エディタがスクリプトの作成・DLL の読み直し(Reload DLL)・起動のたびに、プロジェクトの中の .cpp / .h を `GameModule.vcxproj` に並べ直す(フィルターはフォルダと同じ階層)。エクスプローラーで足した・消したファイルも、このとき反映される。VS で開いているときは「再読み込み」を押す
+- `DirectXGame/` の中ならどのフォルダに置いてもよい(サブフォルダも可。`Data`・`Temp`・`GameModule/bin` は除く)。`GameModule.vcxproj` はソースをワイルドカード(`..\**\*.cpp` など)で入れるので、置いたファイルはそのままビルドに入る(エクスプローラーで足した・消したファイルも)。ファイルを足しても `GameModule.vcxproj` は変わらないので、git で衝突しない
+- **ファイルは Visual Studio の「追加」ではなく、エディタ(Create → Script)で足す。** VS はワイルドカードを 1 つずつの一覧に書き直すことがある(書き直されても、次にエディタを起動したときに元に戻る)
+- VS の Solution Explorer のフォルダ表示(`GameModule.vcxproj.filters`)は、エディタがスクリプトの作成・DLL の読み直し(Reload DLL)・起動のたびに作り直す(フォルダと同じ階層。人ごとに作るので git に入れない)。エディタで足したファイルは、VS でプロジェクトを読み直すと一覧に出る
 - フォルダも同じ右クリック → **Create → Folder** で作れる(CUI は `folder.create <パス>`)。フォルダをまたいでヘッダを読むときは `#include "../Player/Foo.h"` のように相対パスで書く
 - CUI: `script.create <名前> [フォルダ]`(フォルダはプロジェクト基準。既定は `GameComponents`。無ければ作る)
 
