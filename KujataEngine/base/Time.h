@@ -25,6 +25,13 @@ public:
 	static float GetUnscaledDeltaTime() { return GetInstance()->UnscaledDeltaTime(); }
 
 	/// <summary>
+	/// Component::FixedUpdate の 1 回分の秒数(固定。1/60 秒)。FixedUpdate の中ではこれを dt に使う。
+	/// 時間スケールは dt ではなく呼ばれる回数に効く(0.5 なら 1 秒に呼ばれる回数が半分になる)。
+	/// </summary>
+	static constexpr float GetFixedDeltaTime() { return kFixedDeltaTime; }
+	static constexpr float kFixedDeltaTime = 1.0f / 60.0f;
+
+	/// <summary>
 	/// 時間の進む速さ。1=等速 / 0=停止(ヒットストップ) / 0.2=スロー。
 	/// **元へ戻す責任は設定した側にある**(戻し忘れるとゲームが止まったままになる)。
 	/// </summary>

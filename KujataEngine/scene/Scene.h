@@ -160,6 +160,8 @@ protected:
 private:
 	bool initialized_ = false;
 	SceneCollisionSystem collisionSystem_;
+	// FixedUpdate にまだ回していない時間(秒)。Play の開始で 0 に戻す。
+	float fixedTimeAccumulator_ = 0.0f;
 
 	// SetSceneName()で設定されるロード対象名。空なら GetDefaultSceneName() を使う。
 	std::string sceneName_;

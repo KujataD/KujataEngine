@@ -35,6 +35,16 @@ public:
 
 	virtual void Initialize() {}
 	virtual void Update() {}
+
+	/// <summary>
+	/// 固定間隔 Time::GetFixedDeltaTime() ごとに呼ぶ。
+	/// </summary>
+	virtual void FixedUpdate() {}
+
+	/// <summary>
+	/// 毎フレーム、全部の Update・物理・当たり判定の後に呼ぶ(カメラの追従など、動いた後の位置を使う処理)。
+	/// </summary>
+	virtual void LateUpdate() {}
 	virtual void Draw() {}
 
 	/// <summary>

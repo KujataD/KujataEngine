@@ -70,6 +70,9 @@ kujata material.set Materials/Toon.material.json shaderModel 8  # マテリア�
 - Project ウィンドウで、フォルダを右クリック(または空いた所を右クリック)→ **Create → Script** → クラス名を入れて Create
 - `<名前>Component.h` / `.cpp` ができる(名前が `Component` で終わっていなければ付け足す)。できたらそのまま GameModule をビルドし直すので、すぐ Add Component に出る
 - ひな形には、保存する項目(`KUJATA_FIELD_*` と `KUJATA_REGISTER_*_TIP`)、他のオブジェクトへの参照(`KUJATA_FIELD_OBJECT_REF`)、`OnPlayStart` / `Update` の書き方が入っている
+- 毎フレームの `Update` のほかに、**固定の間隔(1/60 秒)ごとに呼ばれる `FixedUpdate`** もある(`void FixedUpdate() override;`)。フレームレートに関係なく 1 秒に同じ回数呼ばれるので、1 フレームに 0 回や 2 回のこともある。中の dt は `Time::GetFixedDeltaTime()`。時間スケール(`Time::SetTimeScale`)は dt ではなく呼ばれる回数に効く。重いフレームでも 1 フレームに 5 回までで、超えた分は捨てる。その更新の `Update` より先に呼ばれる(Rigidbody の速度の積分は今までどおり `Update` の後で、可変の dt)
+- **`LateUpdate`** は、毎フレーム 1 回、全部の `Update`・Rigidbody の積分・当たり判定の後に呼ばれる(`void LateUpdate() override;`)。カメラの追従など、その更新で動いた後の位置を使う処理に使う。1 フレームの順番は `FixedUpdate`(0〜数回)→ `Update` → 物理・当たり判定 → `LateUpdate`
+- `KUJATA_REGISTER_*` の、変数より後ろの引数(ドラッグの刻み・最小・最大・説明)は後ろから省略できる。`KUJATA_REGISTER_FLOAT_TIP(speed_)` だけでもよい(刻みは float 0.1 / int 1 / Vector3・Vector4 0.01、範囲なし、説明なし)。途中だけの省略はできない。範囲と説明はなるべく書く
 - 登録は `.cpp` の末尾の `KUJATA_REGISTER_GAME_COMPONENT(型名);` の 1 行で済む(`GameModule.cpp` に書き足さなくてよい)。手で書いたコンポーネントも、この 1 行を書けば登録される
 - `DirectXGame/` の中ならどのフォルダに置いてもよい(サブフォルダも可。`Data`・`Temp`・`GameModule/bin` は除く)。エディタがスクリプトの作成・DLL の読み直し(Reload DLL)・起動のたびに、プロジェクトの中の .cpp / .h を `GameModule.vcxproj` に並べ直す(フィルターはフォルダと同じ階層)。エクスプローラーで足した・消したファイルも、このとき反映される。VS で開いているときは「再読み込み」を押す
 - フォルダも同じ右クリック → **Create → Folder** で作れる(CUI は `folder.create <パス>`)。フォルダをまたいでヘッダを読むときは `#include "../Player/Foo.h"` のように相対パスで書く
