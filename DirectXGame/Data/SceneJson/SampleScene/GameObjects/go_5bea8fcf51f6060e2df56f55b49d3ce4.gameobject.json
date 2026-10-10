@@ -1,0 +1,59 @@
+{
+  "assetType": "GameObject",
+  "instanceId": "go_5bea8fcf51f6060e2df56f55b49d3ce4",
+  "parentInstanceId": "",
+  "prefabAssetPath": "",
+  "prefabObjectId": "",
+  "prefabInstanceRootId": "",
+  "prefabInstanceRoot": false,
+  "name": "Directional Light",
+  "tag": "Untagged",
+  "layer": 0,
+  "active": true,
+  "components": [
+    {
+      "enabled": true,
+      "properties": {
+        "rotation": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          3.671982526779175,
+          0.0
+        ]
+      },
+      "type": "Transform"
+    },
+    {
+      "enabled": true,
+      "properties": {
+        "color": [
+          1.0,
+          0.8732865452766418,
+          0.6066945791244507,
+          1.0
+        ],
+        "direction": [
+          -0.5733577609062195,
+          -0.8052605986595154,
+          0.15105025470256805
+        ],
+        "intensity": 0.5699999928474426,
+        "shadowColor": [
+          0.07608409970998764,
+          0.09065143764019012,
+          0.22175729274749756
+        ]
+      },
+      "type": "DirectionalLightComponent"
+    }
+  ]
+}

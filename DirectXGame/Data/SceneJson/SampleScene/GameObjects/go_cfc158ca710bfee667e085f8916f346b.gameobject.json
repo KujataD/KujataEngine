@@ -1,0 +1,130 @@
+{
+  "assetType": "GameObject",
+  "instanceId": "go_cfc158ca710bfee667e085f8916f346b",
+  "parentInstanceId": "",
+  "prefabAssetPath": "",
+  "prefabObjectId": "",
+  "prefabInstanceRootId": "",
+  "prefabInstanceRoot": false,
+  "name": "Capsule",
+  "tag": "Untagged",
+  "layer": 0,
+  "active": true,
+  "components": [
+    {
+      "enabled": true,
+      "properties": {
+        "rotation": [
+          0.7415926456451416,
+          -0.671592652797699,
+          -3.1415908336639404
+        ],
+        "scale": [
+          0.9999999403953552,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          -2.7345824241638184,
+          -0.1854308843612671,
+          -11.951212882995605
+        ]
+      },
+      "type": "Transform"
+    },
+    {
+      "enabled": true,
+      "properties": {
+        "billboardEnabled": false,
+        "billboardFaceMode": 0,
+        "cameraLocalZ": 1.0,
+        "doubleSided": false,
+        "material": {
+          "baseColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "blendMode": 1,
+          "bloomIntensity": 1.0,
+          "bloomSoftKnee": 0.5,
+          "bloomThreshold": 0.0,
+          "depthWrite": true,
+          "emissiveColor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "emissiveEnabled": false,
+          "emissiveIntensity": 1.0,
+          "flatShading": false,
+          "name": "New Material",
+          "pointSampling": false,
+          "shaderModel": 8,
+          "textures": {
+            "BaseColor": {
+              "assetId": "asset_c380efbdd808cc3261c1efbb9c1c925a",
+              "path": "Resources/white1x1.png"
+            },
+            "Emissive": {
+              "assetId": "",
+              "path": ""
+            },
+            "Environment": {
+              "assetId": "",
+              "path": ""
+            },
+            "Normal": {
+              "assetId": "",
+              "path": ""
+            }
+          },
+          "toonSmoothness": 0.0,
+          "toonSteps": 4,
+          "uvOffset": [
+            0.0,
+            0.0
+          ],
+          "uvRotation": 0.0,
+          "uvScale": [
+            1.0,
+            1.0
+          ]
+        },
+        "materialAssetId": "asset_636f2aeabe86ed3531b7bd958f84e7c7",
+        "materialPath": "Resources/New Material.material.json",
+        "modelAssetId": "",
+        "modelPath": "Resources/block/block.obj",
+        "primitive": "Capsule"
+      },
+      "type": "ModelRendererComponent"
+    },
+    {
+      "enabled": true,
+      "properties": {
+        "center": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "collisionMask": 4294967295,
+        "direction": 1,
+        "height": 2.0,
+        "isTrigger": false,
+        "movingCollider": false,
+        "radius": 0.5
+      },
+      "type": "CapsuleColliderComponent"
+    },
+    {
+      "enabled": true,
+      "properties": {
+        "bobDistance": 0.0,
+        "bobSpeed": 0.019999999552965164,
+        "speed": 0.12700000405311584
+      },
+      "type": "RotatorComponent"
+    }
+  ]
+}

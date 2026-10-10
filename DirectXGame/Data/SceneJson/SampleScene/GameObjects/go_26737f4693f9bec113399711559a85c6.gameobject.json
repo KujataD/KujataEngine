@@ -1,0 +1,51 @@
+{
+  "assetType": "GameObject",
+  "instanceId": "go_26737f4693f9bec113399711559a85c6",
+  "parentInstanceId": "",
+  "prefabAssetPath": "",
+  "prefabObjectId": "",
+  "prefabInstanceRootId": "",
+  "prefabInstanceRoot": false,
+  "name": "Point Light",
+  "tag": "Untagged",
+  "layer": 0,
+  "active": true,
+  "components": [
+    {
+      "enabled": true,
+      "properties": {
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          5.0,
+          0.0
+        ]
+      },
+      "type": "Transform"
+    },
+    {
+      "enabled": true,
+      "properties": {
+        "color": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "decay": 1.0,
+        "intensity": 0.0,
+        "radius": 10.0
+      },
+      "type": "PointLightComponent"
+    }
+  ]
+}

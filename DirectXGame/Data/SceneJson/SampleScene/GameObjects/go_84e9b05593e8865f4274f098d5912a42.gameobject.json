@@ -1,0 +1,47 @@
+{
+  "assetType": "GameObject",
+  "instanceId": "go_84e9b05593e8865f4274f098d5912a42",
+  "parentInstanceId": "",
+  "prefabAssetPath": "",
+  "prefabObjectId": "",
+  "prefabInstanceRootId": "",
+  "prefabInstanceRoot": false,
+  "name": "Main Camera",
+  "tag": "Untagged",
+  "layer": 0,
+  "active": true,
+  "components": [
+    {
+      "enabled": true,
+      "properties": {
+        "rotation": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "translation": [
+          0.0,
+          0.0,
+          -20.0
+        ]
+      },
+      "type": "Transform"
+    },
+    {
+      "enabled": true,
+      "properties": {
+        "aspectRatio": 1.7777777910232544,
+        "farZ": 1000.0,
+        "fovAngleY": 0.6000000238418579,
+        "nearZ": 0.10000000149011612,
+        "pixelSize": 8
+      },
+      "type": "CameraComponent"
+    }
+  ]
+}

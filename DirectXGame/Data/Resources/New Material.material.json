@@ -1,0 +1,60 @@
+{
+  "assetType": "Material",
+  "baseColor": [
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "blendMode": 1,
+  "bloomIntensity": 1.0,
+  "bloomSoftKnee": 0.5,
+  "bloomThreshold": 0.0,
+  "depthWrite": true,
+  "emissiveColor": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "emissiveEnabled": false,
+  "emissiveIntensity": 1.0,
+  "flatShading": false,
+  "name": "New Material",
+  "pointSampling": false,
+  "shaderModel": 8,
+  "shadowColor": [
+    0.12184660881757736,
+    0.1556938886642456,
+    0.33472806215286255
+  ],
+  "textures": {
+    "BaseColor": {
+      "assetId": "asset_c380efbdd808cc3261c1efbb9c1c925a",
+      "path": "Resources/white1x1.png"
+    },
+    "Emissive": {
+      "assetId": "",
+      "path": ""
+    },
+    "Environment": {
+      "assetId": "",
+      "path": ""
+    },
+    "Normal": {
+      "assetId": "",
+      "path": ""
+    }
+  },
+  "toonSmoothness": 0.0,
+  "toonSteps": 4,
+  "uvOffset": [
+    0.0,
+    0.0
+  ],
+  "uvRotation": 0.0,
+  "uvScale": [
+    1.0,
+    1.0
+  ],
+  "version": 1
+}

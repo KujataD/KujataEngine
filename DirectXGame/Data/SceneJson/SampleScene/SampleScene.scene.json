@@ -1,0 +1,90 @@
+{
+  "assetType": "Scene",
+  "name": "SampleScene",
+  "gameObjects": [
+    {
+      "instanceId": "go_84e9b05593e8865f4274f098d5912a42",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "Main Camera",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_84e9b05593e8865f4274f098d5912a42.gameobject.json"
+    },
+    {
+      "instanceId": "go_ca6a0b73ac72ab6165352d0bca5f4f44",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "Editor Debug Camera",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_ca6a0b73ac72ab6165352d0bca5f4f44.gameobject.json"
+    },
+    {
+      "instanceId": "go_5bea8fcf51f6060e2df56f55b49d3ce4",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "Directional Light",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_5bea8fcf51f6060e2df56f55b49d3ce4.gameobject.json"
+    },
+    {
+      "instanceId": "go_26737f4693f9bec113399711559a85c6",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "Point Light",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_26737f4693f9bec113399711559a85c6.gameobject.json"
+    },
+    {
+      "instanceId": "go_04024a6866f158b702010d862f1ed23e",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "MonsterBall",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_04024a6866f158b702010d862f1ed23e.gameobject.json"
+    },
+    {
+      "instanceId": "go_7881ff652456b0003c40d638683ac0a5",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "Cube",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_7881ff652456b0003c40d638683ac0a5.gameobject.json"
+    },
+    {
+      "instanceId": "go_cfc158ca710bfee667e085f8916f346b",
+      "parentInstanceId": "",
+      "prefabAssetPath": "",
+      "prefabObjectId": "",
+      "prefabInstanceRootId": "",
+      "prefabInstanceRoot": false,
+      "name": "Capsule",
+      "tag": "Untagged",
+      "layer": 0,
+      "assetPath": "SceneJson/SampleScene/GameObjects/go_cfc158ca710bfee667e085f8916f346b.gameobject.json"
+    }
+  ]
+}
