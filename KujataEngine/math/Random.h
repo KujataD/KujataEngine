@@ -4,9 +4,16 @@
 #include <type_traits>
 #include <algorithm>
 
+#include "../runtime/KujataApi.h"
+
 namespace KujataEngine {
 
-class Random {
+/// <summary>
+/// 見た目だけの乱数(パーティクル・演出のばらつきなど)。起動するたびに種が変わる。
+/// ゲームの判定・動きには使わない(毎回違う結果になり、不具合の再現やリプレイができなくなる。.claude/determinism.md)。
+/// GameModule からも使えるよう、KUJATA_API で書き出す(乱数の状態はエンジン側の 1 つを共有する)。
+/// </summary>
+class KUJATA_API Random {
 public:
 	static void Initialize() {
 		// 乱数生成エンジン
