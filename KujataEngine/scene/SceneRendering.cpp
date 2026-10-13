@@ -88,7 +88,7 @@ void Scene::ApplyVolumes(const Camera* camera) {
 }
 
 void Scene::RenderView(Camera* camera, bool drawEditorOverlays) {
-	// モデルのカメラは派生側でApplyRenderCameraToModelRenderers済みの想定。ここでは半透明の並べ替えにだけ使う。
+	// モデルのカメラは派生側でApplyRenderCamera済みの想定。ここでは半透明の並べ替えにだけ使う。
 	DrawGameObjectsSorted(gameObjects_, camera);
 
 	// 編集用オーバーレイはSceneビューのみ(呼び出し側のdrawEditorOverlaysで制御)。

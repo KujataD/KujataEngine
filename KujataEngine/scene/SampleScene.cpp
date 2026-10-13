@@ -9,11 +9,6 @@
 #include "../components/DebugCameraComponent.h"
 #include "../components/DirectionalLightComponent.h"
 #include "../components/ModelRendererComponent.h"
-#include "../components/ParticleSystemComponent.h"
-#include "../components/TrailRendererComponent.h"
-#include "../components/SplineRendererComponent.h"
-#include "../components/OceanComponent.h"
-#include "../components/BlobShadowComponent.h"
 #include "../components/PointLightComponent.h"
 #include "../components/SpotLightComponent.h"
 #include "../components/RotatorComponent.h"
@@ -52,7 +47,7 @@ void SampleScene::Initialize() {
 	terrain->AddComponent<ModelRendererComponent>(std::unique_ptr<Model>(Model::CreateFromGlTF("plane", ShaderModel::kBlingPhongReflection)), renderCamera);
 
 	Scene::Initialize();
-	ApplyRenderCameraToModelRenderers(GetCurrentViewCamera());
+	ApplyRenderCamera(GetCurrentViewCamera());
 }
 
 void SampleScene::Update() {
@@ -67,7 +62,7 @@ void SampleScene::Draw() {
 	ParticleModel::PostDraw();
 
 	Model::PreDraw();
-	ApplyRenderCameraToModelRenderers(GetCurrentViewCamera());
+	ApplyRenderCamera(GetCurrentViewCamera());
 	Scene::Draw();
 	Model::PostDraw();
 }
@@ -206,37 +201,17 @@ void SampleScene::ApplySceneLights() {
 	}
 }
 
-void SampleScene::ApplyRenderCameraToModelRenderers(const Camera* camera) {
+void SampleScene::ApplyRenderCamera(const Camera* camera) {
 	for (const std::unique_ptr<GameObject>& gameObject : GetGameObjects()) {
 		if (!gameObject) {
 			continue;
 		}
 
+		// 型を決め打ちせず、全コンポーネントに渡す(カメラが要るものだけが SetRenderCamera を上書きしている)。
+		// ゲーム側のコンポーネントも、上書きすれば自分の Model をこのビューのカメラで描ける。
 		for (const std::unique_ptr<Component>& component : gameObject->GetComponents()) {
-			if (!component) {
-				continue;
-			}
-
-			if (ModelRendererComponent* renderer = dynamic_cast<ModelRendererComponent*>(component.get())) {
-				renderer->SetCamera(camera);
-				continue;
-			}
-
-			// トレイルもカメラを向く帯を組み立てるので、同じようにこのビューのカメラを渡す。
-			if (ParticleSystemComponent* particles = dynamic_cast<ParticleSystemComponent*>(component.get())) {
-				particles->SetCamera(camera);
-			}
-			if (TrailRendererComponent* trail = dynamic_cast<TrailRendererComponent*>(component.get())) {
-				trail->SetCamera(camera);
-			}
-			if (SplineRendererComponent* spline = dynamic_cast<SplineRendererComponent*>(component.get())) {
-				spline->SetCamera(camera);
-			}
-			if (OceanComponent* ocean = dynamic_cast<OceanComponent*>(component.get())) {
-				ocean->SetCamera(camera);
-			}
-			if (BlobShadowComponent* shadow = dynamic_cast<BlobShadowComponent*>(component.get())) {
-				shadow->SetCamera(camera);
+			if (component) {
+				component->SetRenderCamera(camera);
 			}
 		}
 	}
@@ -269,7 +244,7 @@ void SampleScene::RenderView(Camera* camera, bool drawEditorOverlays) {
 		return;
 	}
 	// このビューのカメラを各ModelRendererへ設定し、モデル用パイプラインで描く。
-	ApplyRenderCameraToModelRenderers(camera);
+	ApplyRenderCamera(camera);
 	Model::PreDraw();
 	Scene::RenderView(camera, drawEditorOverlays);
 	Model::PostDraw();
@@ -288,10 +263,9 @@ Camera* SampleScene::GetGameViewCamera() {
 void SampleScene::OnEditorComponentAdded(GameObject* gameObject, Component* component) {
 	Scene::OnEditorComponentAdded(gameObject, component);
 
-	ModelRendererComponent* renderer = dynamic_cast<ModelRendererComponent*>(component);
-	if (renderer) {
-		renderer->SetCamera(GetCurrentViewCamera());
-		return;
+	// 足したばかりのコンポーネントも、次の描画を待たずにカメラを持たせる。
+	if (component) {
+		component->SetRenderCamera(GetCurrentViewCamera());
 	}
 
 	DebugCameraComponent* debugCamera = dynamic_cast<DebugCameraComponent*>(component);

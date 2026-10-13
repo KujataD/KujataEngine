@@ -54,7 +54,7 @@ public:
 	bool UsesMaterialAsset(const std::string& materialPath) const override;
 
 	/// <summary>描画に使うカメラ。Sceneが各ビューの描画前に配る(ModelRendererComponentと同じ扱い)。</summary>
-	void SetCamera(const Camera* camera) { camera_ = camera; }
+	void SetRenderCamera(const Camera* camera) override { camera_ = camera; }
 
 	/// <summary>
 	/// 曲線が通る点をワールド座標で渡す(2点以上で描かれる)。widthScales を渡すと、点ごとに太さを掛ける(点と同じ数)。

@@ -50,7 +50,7 @@ private:
 	GameObject* FindGameObjectByName(const std::string& name);
 	Camera* GetCurrentViewCamera();
 	void ApplySceneLights();
-	void ApplyRenderCameraToModelRenderers(const Camera* camera);
+	void ApplyRenderCamera(const Camera* camera);
 
 private:
 	CameraComponent* gameCameraComponent_ = nullptr;

@@ -40,7 +40,7 @@ public:
 	bool IsTransparentDraw() const override { return true; }
 
 	/// <summary>描画に使うカメラ。シーン側が毎フレーム配る(ModelRenderer/Trailと同じ流儀)。</summary>
-	void SetCamera(const Camera* camera) { camera_ = camera; }
+	void SetRenderCamera(const Camera* camera) override { camera_ = camera; }
 
 	/// <summary>Burst Count ぶん一気に出す。</summary>
 	void Burst();

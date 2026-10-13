@@ -23,7 +23,7 @@ void DrawSceneSprites(Scene& scene, Camera* camera) {
 		for (const std::unique_ptr<Component>& component : gameObject->GetComponents()) {
 			SpriteRendererComponent* sprite = dynamic_cast<SpriteRendererComponent*>(component.get());
 			if (sprite && sprite->IsEnabled()) {
-				sprite->SetCamera(camera);
+				sprite->SetRenderCamera(camera);
 				sprites.push_back(sprite);
 			}
 		}

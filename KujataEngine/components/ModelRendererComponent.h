@@ -43,7 +43,7 @@ public:
 
 	void SetModel(std::unique_ptr<Model> model);
 
-	void SetCamera(const Camera* camera);
+	void SetRenderCamera(const Camera* camera) override;
 
 	/// <summary>
 	/// Builtin形状を設定します。textureFilePathは、Material Assetを参照していない場合のみ

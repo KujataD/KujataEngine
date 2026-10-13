@@ -99,6 +99,7 @@
 - GameModule DLL からエンジン側シンボルを使うには `KUJATA_API` エクスポートが必要(未エクスポートだとリンク不可)。
 - テクスチャ/フォントの読み込みは描画パス外(Prepare)で行うこと。日本語パスでテクスチャ読込が死ぬ罠あり。
 - **Scene ビューと Game ビューは同じフレームで両方描く**(GPU が実際に描くのはフレームの最後)。描くたびに書き換える GPU のバッファ(カメラの行列を入れる定数・インスタンスのバッファ・毎フレームの頂点)は、**ビューごとに別のものを持つ**(`DirectXCommon::GetRenderViewIndex()` で選ぶ。例: `WorldTransform`・`LineRenderer`・`ParticleModel`・`SplineRendererComponent`)。1つを共有すると、先に描いたビューも後のビューの中身(別のカメラ)で描かれて、Game ビューを開いているときだけ Scene ビューでずれて見える。
+- **描くビューのカメラは `Component::SetRenderCamera`(仮想関数)で受け取る。** `SampleScene::ApplyRenderCamera` がビューごとに全コンポーネントへ渡すので、カメラが要るコンポーネント(組み込みもゲーム側も)はこれを上書きする。`SampleScene` に型を決め打ちで足さない。
 - **Game の描画先は画面より小さいことがある**(カメラの `pixelSize` によるドット絵化)。ビューポートを `WinApp::kWindowWidth` 固定で書かず、`DirectXCommon::GetCurrentTargetWidth/Height`(今の描画先)を使う。UI の座標(クリック判定・Canvas のレイアウト)は `GetGameOutputWidth/Height`、3D を描く先の大きさは `GetGameRenderWidth/Height`。
 - **エンジンとゲームの境界**: ゲーム固有の設定は `DirectXGame/Game.props`(exe 名)と `DirectXGame/Data/ProjectSettings/Project.json`(ウィンドウタイトル・背景色)に置き、`KujataEngine/` には書かない。
 - **パスの起点は2つ**(`base/ProjectPath.h`): エンジンの持ち物は `GetEngineRoot()`(= `KujataEngine/`)/ `GetEngineDataRoot()`、プロジェクトの持ち物(GameModule・Data・Temp)は `GetActiveProjectRoot()` / `GetProjectDataRoot()` を使う。どちらも起動時に一度だけ決まり、キャッシュされる。

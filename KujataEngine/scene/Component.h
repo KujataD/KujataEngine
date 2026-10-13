@@ -20,6 +20,7 @@
 
 namespace KujataEngine {
 
+class Camera;
 class ColliderComponent;
 class GameObject;
 class SerializedFieldRegistry;
@@ -46,6 +47,13 @@ public:
 	/// </summary>
 	virtual void LateUpdate() {}
 	virtual void Draw() {}
+
+	/// <summary>
+	/// Draw の前に、これから描くビュー(Scene / Game)のカメラが渡される(全コンポーネントに、ビューごとに呼ぶ)。
+	/// 自分で Model などを描くコンポーネントは上書きして覚えておき、Draw でそのカメラを使う。
+	/// 同じフレームで両方のビューを描くので、カメラで変わる GPU のバッファはビューごとに別にすること(CLAUDE.md)。
+	/// </summary>
+	virtual void SetRenderCamera(const Camera* camera) { (void)camera; }
 
 	/// <summary>
 	/// 深度を書かない描画(半透明・加算)をするか。true のコンポーネントは、Scene が不透明物をすべて描いた後に、

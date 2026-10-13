@@ -59,7 +59,7 @@ public:
 	bool UsesMaterialAsset(const std::string& materialPath) const override;
 
 	/// <summary>描画に使うカメラ。Sceneが各ビューの描画前に配る(ModelRendererComponentと同じ扱い)。</summary>
-	void SetCamera(const Camera* camera) { camera_ = camera; }
+	void SetRenderCamera(const Camera* camera) override { camera_ = camera; }
 
 	/// <summary>
 	/// ワールド座標 (x, z) の海面の高さ(ワールドの Y)を返す。描かれている三角形の上の高さなので、見た目と一致する。

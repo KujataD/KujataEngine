@@ -15,6 +15,7 @@ DirectX 12 製の自作ゲームエンジン(Unity 風エディタ内蔵)。
 
 1. `KujataEngine.sln` を Visual Studio 18 で開き、**Debug | x64** でビルド(exe と GameModule は必ず同じ .sln から同時にビルドすること)
 2. 実行するとエディタが起動し、`DirectXGame/` のゲームが開く。Hierarchy でオブジェクト選択、▶ で Play / ■ で停止
+   - Play 中の変更は ■ で Play 前に戻る(実行中に作ったオブジェクトも消える)。Play 中は Ctrl+S(File → Save Scene)でもシーンを保存しない(■ してから保存する)
    - 別のフォルダを開くときは、起動引数に `--project <フォルダ>` を付ける(例: 試作用の `Sandbox/`)
    - エディタの `Reload DLL` を押すと、GameModule を `DirectXGame/Temp/HotReload/` へビルドし直して差し替える(ホットリロード)
 3. 遊んでもらう用の配布フォルダは、Release をビルドしてから `Tools/MakeGameBuild.ps1` で作る
@@ -73,6 +74,7 @@ kujata material.set Materials/Toon.material.json shaderModel 8  # マテリア�
 - 毎フレームの `Update` のほかに、**固定の間隔(1/60 秒)ごとに呼ばれる `FixedUpdate`** もある(`void FixedUpdate() override;`)。フレームレートに関係なく 1 秒に同じ回数呼ばれるので、1 フレームに 0 回や 2 回のこともある。中の dt は `Time::GetFixedDeltaTime()`。時間スケール(`Time::SetTimeScale`)は dt ではなく呼ばれる回数に効く。重いフレームでも 1 フレームに 5 回までで、超えた分は捨てる。その更新の `Update` より先に呼ばれる(Rigidbody の速度の積分は今までどおり `Update` の後で、可変の dt)
 - **`LateUpdate`** は、毎フレーム 1 回、全部の `Update`・Rigidbody の積分・当たり判定の後に呼ばれる(`void LateUpdate() override;`)。カメラの追従など、その更新で動いた後の位置を使う処理に使う。1 フレームの順番は `FixedUpdate`(0〜数回)→ `Update` → 物理・当たり判定 → `LateUpdate`
 - `KUJATA_REGISTER_*` の、変数より後ろの引数(ドラッグの刻み・最小・最大・説明)は後ろから省略できる。`KUJATA_REGISTER_FLOAT_TIP(speed_)` だけでもよい(刻みは float 0.1 / int 1 / Vector3・Vector4 0.01、範囲なし、説明なし)。途中だけの省略はできない。範囲と説明はなるべく書く
+- 自分で `Model`(動的メッシュなど)を描くコンポーネントは、`Component::SetRenderCamera(const Camera*)` を上書きすると、描く前にそのビュー(Scene / Game)のカメラが渡される。覚えておいて `Draw` で `model->Draw(transform, *camera)` のように使う(Scene と Game は同じフレームで両方描くので、カメラで変わる GPU のバッファはビューごとに分ける)
 - 見た目だけの乱数(パーティクル・演出のばらつきなど)は `KujataEngine::Random::GetRandom(min, max)`(`math/Random.h`。GameModule からも使える)。起動するたびに種が変わるので、ゲームの判定・動きには使わない(毎回結果が変わり、不具合を再現できない)
 - 登録は `.cpp` の末尾の `KUJATA_REGISTER_GAME_COMPONENT(型名);` の 1 行で済む(`GameModule.cpp` に書き足さなくてよい)。手で書いたコンポーネントも、この 1 行を書けば登録される
 - `DirectXGame/` の中ならどのフォルダに置いてもよい(サブフォルダも可。`Data`・`Temp`・`GameModule/bin` は除く)。`GameModule.vcxproj` はソースをワイルドカード(`..\**\*.cpp` など)で入れるので、置いたファイルはそのままビルドに入る(エクスプローラーで足した・消したファイルも)。ファイルを足しても `GameModule.vcxproj` は変わらないので、git で衝突しない

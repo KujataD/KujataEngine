@@ -238,6 +238,12 @@ void ImGuiManager::ExportCurrentSceneJson() {
 		AddConsoleLog("[Editor] Scene JSON export failed: No Scene.");
 		return;
 	}
+	// Play 中のシーンは、動いた後の値と実行中に作ったオブジェクトを含むので保存しない(CUI の scene.save と同じ)。
+	// Play 中の変更は Stop で Play 前に戻る。
+	if (EditorApplication::GetInstance()->IsPlaying()) {
+		EditorConsole::GetInstance()->AddLog("[Editor] Play 中は保存できません(Stop してから保存してください)。", EditorLogLevel::Warning);
+		return;
+	}
 
 	// Project Windowの表示ルートはプロジェクトのフォルダだが、シーンJSONの読み書きはData配下が基準。
 	// プロジェクトのフォルダを渡すと <プロジェクト>/SceneJson へ書き出してしまい、Importerが読まない場所に保存される。
@@ -396,7 +402,8 @@ void ImGuiManager::DrawMainMenuBar() {
 	const bool hasScene = scene != nullptr;
 
 	if (ImGui::BeginMenu("File")) {
-		if (ImGui::MenuItem("Save Scene", "Ctrl+S")) {
+		// Play 中はシーンを保存できない(ExportCurrentSceneJson)。プレハブの編集中は、プレハブの保存になる。
+		if (ImGui::MenuItem("Save Scene", "Ctrl+S", false, !app->IsPlaying() || app->IsPrefabEditing())) {
 			if (app->IsPrefabEditing()) {
 				app->SavePrefabEditMode();
 			} else {

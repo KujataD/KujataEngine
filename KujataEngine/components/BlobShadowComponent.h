@@ -42,7 +42,7 @@ public:
 	int GetTransparentQueue() const override { return -50; }
 
 	/// <summary>描画に使うカメラ。Sceneが各ビューの描画前に配る(ModelRendererComponentと同じ扱い)。</summary>
-	void SetCamera(const Camera* camera) { camera_ = camera; }
+	void SetRenderCamera(const Camera* camera) override { camera_ = camera; }
 
 	/// <summary>今フレーム、影を落とす地面が見つかったか。</summary>
 	bool HasGround() const { return hasGround_; }

@@ -66,7 +66,7 @@ public:
 	void SetBlendMode(BlendMode blendMode);
 
 	/// <summary>描画に使うカメラ。SceneがビューごとにApplyRenderCameraで設定する。</summary>
-	void SetCamera(const Camera* camera) { camera_ = camera; }
+	void SetRenderCamera(const Camera* camera) override { camera_ = camera; }
 
 	void DrawInspector() override;
 	void WriteJson(nlohmann::json& json) const override;

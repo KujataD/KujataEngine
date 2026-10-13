@@ -49,7 +49,7 @@ public:
 	void ReadJson(const nlohmann::json& json) override;
 
 	/// <summary>描画に使うカメラ。Sceneが各ビューの描画前に配る(ModelRendererComponentと同じ扱い)。</summary>
-	void SetCamera(const Camera* camera) { camera_ = camera; }
+	void SetRenderCamera(const Camera* camera) override { camera_ = camera; }
 
 	/// <summary>履歴を全て捨てて帯を消す。ワープさせる直前や、使い回しの開始時に呼ぶ。</summary>
 	void Clear() { points_.clear(); }

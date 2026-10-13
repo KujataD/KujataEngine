@@ -103,7 +103,7 @@ void ModelRendererComponent::SetModel(std::unique_ptr<Model> model) {
 	ApplyMaterialToModel();
 }
 
-void ModelRendererComponent::SetCamera(const Camera* camera) {
+void ModelRendererComponent::SetRenderCamera(const Camera* camera) {
 	camera_ = camera;
 }
 
