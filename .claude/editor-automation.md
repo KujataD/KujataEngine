@@ -129,6 +129,7 @@ wait 60
 | | `animation.save <オブジェクト>` | クリップをファイルへ保存する(Save Clip) |
 | マテリアル | `material.list` / `material.create [名前]` | マテリアルの一覧(Data 基準のパス) / `Data/Materials/` に作る |
 | | `material.get <パス>` / `material.set <パス> <キー> <値>` | 全フィールド(キー名はファイルと同じ) / 1 つ書き換えて保存し、使っているオブジェクトへ反映する(Material の Inspector と同じ処理。Undo 不可) |
+| | `material.instance.set <オブジェクト> <キー> <値>` / `material.instance.clear <オブジェクト>` | その ModelRendererComponent だけのマテリアル(インスタンス)にして 1 つ書き換える(アセットとほかのオブジェクトは変わらない。保存しない・Play を止めると戻る・Undo 不可) / アセットのマテリアルへ戻す |
 | 表示 | `view.colliders [on\|off]` | 全 Collider の形を線で描く(F1 と同じ。省略すると切り替え) |
 | 自作シェーダー | `shader.list` | Data 配下の .hlsl と、コンパイルの成否・エラー |
 | | `shader.create [名前]` / `shader.reload` | ひな形を `Data/Shaders/` に作る(Inspector の New) / すべてコンパイルし直す(保存すれば自動でも読み直す) |

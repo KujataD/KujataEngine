@@ -7,6 +7,9 @@
 #include "../../3d/GraphicsPipeline.h"
 #include "../../assets/MaterialAsset.h"
 #include "../../base/ProjectPath.h"
+#include "../../components/ModelRendererComponent.h"
+#include "../../scene/GameObject.h"
+#include "../../scene/Scene.h"
 #include <filesystem>
 #include <string>
 #include <system_error>
@@ -92,23 +95,9 @@ EditorCommandResult CommandMaterialGet(const EditorCommandArgs& args) {
 	return EditorCommandResult::Success(DescribeMaterial(path, material));
 }
 
-EditorCommandResult CommandMaterialSet(const EditorCommandArgs& args) {
-	if (args.Count() < 3) {
-		return EditorCommandResult::Failure("使い方: material.set <マテリアルのパス> <キー> <値>(例: material.set Materials/Toon.material.json toonSteps 4)");
-	}
-	std::filesystem::path path;
-	std::string error;
-	if (!ResolveMaterialPath(args.Get(0), path, error)) {
-		return EditorCommandResult::Failure(error);
-	}
-	MaterialAssetData material = MaterialAsset::CreateDefault();
-	if (!MaterialAsset::Load(path, material, error)) {
-		return EditorCommandResult::Failure(error);
-	}
-
-	// 値は行末までを JSON として読む(field.set と同じ)。読めなければ文字列として扱う。
-	const std::string& key = args.Get(1);
-	const std::string rawValue = args.RestFrom(2);
+// マテリアルのキーを 1 つ書き換える(material.set と material.instance.set で共通)。
+// 値は行末までを JSON として読む(field.set と同じ)。読めなければ文字列として扱う。outChange には key / before / after が入る。
+bool SetMaterialField(MaterialAssetData& material, const std::string& key, const std::string& rawValue, json& outChange, std::string& error) {
 	json value = json::parse(rawValue, nullptr, false);
 	if (value.is_discarded()) {
 		value = rawValue;
@@ -124,13 +113,15 @@ EditorCommandResult CommandMaterialSet(const EditorCommandArgs& args) {
 				keys += " " + it.key();
 			}
 		}
-		return EditorCommandResult::Failure("書き換えられないキーです: " + key + "。書き換えられるキー:" + keys);
+		error = "書き換えられないキーです: " + key + "。書き換えられるキー:" + keys;
+		return false;
 	}
 	const json before = fields[key];
 	const bool sameKind = (before.is_number() && value.is_number()) || (before.is_boolean() && value.is_boolean()) ||
 	                      (before.is_string() && value.is_string()) || (before.is_array() && value.is_array() && value.size() == before.size());
 	if (!sameKind) {
-		return EditorCommandResult::Failure(key + " は " + before.dump() + " と同じ形の値で指定してください。");
+		error = key + " は " + before.dump() + " と同じ形の値で指定してください。";
+		return false;
 	}
 	// 整数の欄(shaderModel / toonSteps など)に 4.5 のような小数を入れても読み飛ばされないよう、整数にそろえる。
 	if (before.is_number_integer() && value.is_number_float()) {
@@ -139,14 +130,90 @@ EditorCommandResult CommandMaterialSet(const EditorCommandArgs& args) {
 	fields[key] = value;
 	material = MaterialAsset::ReadJsonObject(fields, material);
 
+	outChange["key"] = key;
+	outChange["before"] = before;
+	outChange["after"] = value;
+	return true;
+}
+
+EditorCommandResult CommandMaterialSet(const EditorCommandArgs& args) {
+	if (args.Count() < 3) {
+		return EditorCommandResult::Failure("使い方: material.set <マテリアルのパス> <キー> <値>(例: material.set Materials/Toon.material.json toonSteps 4)");
+	}
+	std::filesystem::path path;
+	std::string error;
+	if (!ResolveMaterialPath(args.Get(0), path, error)) {
+		return EditorCommandResult::Failure(error);
+	}
+	MaterialAssetData material = MaterialAsset::CreateDefault();
+	if (!MaterialAsset::Load(path, material, error)) {
+		return EditorCommandResult::Failure(error);
+	}
+	json change;
+	if (!SetMaterialField(material, args.Get(1), args.RestFrom(2), change, error)) {
+		return EditorCommandResult::Failure(error);
+	}
+
 	if (!SaveMaterialAsset(path, material, error)) {
 		return EditorCommandResult::Failure(error);
 	}
 	json result = DescribeMaterial(path, material);
-	result["key"] = key;
-	result["before"] = before;
-	result["after"] = value;
+	result.update(change);
 	return EditorCommandResult::Success(result);
+}
+
+// オブジェクトの ModelRendererComponent(マテリアルのインスタンスを持てるもの)を探す。
+ModelRendererComponent* ResolveModelRenderer(const std::string& objectSpec, std::string& error) {
+	Scene* scene = GetScene();
+	if (!scene) {
+		error = "シーンがありません。";
+		return nullptr;
+	}
+	GameObject* gameObject = ResolveObject(*scene, objectSpec, error);
+	if (!gameObject) {
+		return nullptr;
+	}
+	return dynamic_cast<ModelRendererComponent*>(ResolveComponent(*gameObject, "ModelRendererComponent", error));
+}
+
+json DescribeMaterialInstance(const ModelRendererComponent& renderer) {
+	json value;
+	value["instanced"] = renderer.HasMaterialInstance();
+	value["materialPath"] = renderer.GetMaterialPath();
+	json fields = json::object();
+	MaterialAsset::WriteJsonObject(fields, renderer.GetMaterial());
+	value["fields"] = fields;
+	return value;
+}
+
+EditorCommandResult CommandMaterialInstanceSet(const EditorCommandArgs& args) {
+	if (args.Count() < 3) {
+		return EditorCommandResult::Failure("使い方: material.instance.set <オブジェクト> <キー> <値>(例: material.instance.set Boss/Shell baseColor [1,0,0,1])");
+	}
+	std::string error;
+	ModelRendererComponent* renderer = ResolveModelRenderer(args.Get(0), error);
+	if (!renderer) {
+		return EditorCommandResult::Failure(error);
+	}
+	MaterialAssetData material = renderer->GetMaterial();
+	json change;
+	if (!SetMaterialField(material, args.Get(1), args.RestFrom(2), change, error)) {
+		return EditorCommandResult::Failure(error);
+	}
+	renderer->SetMaterialInstance(material);
+	json result = DescribeMaterialInstance(*renderer);
+	result.update(change);
+	return EditorCommandResult::Success(result);
+}
+
+EditorCommandResult CommandMaterialInstanceClear(const EditorCommandArgs& args) {
+	std::string error;
+	ModelRendererComponent* renderer = ResolveModelRenderer(args.Get(0), error);
+	if (!renderer) {
+		return EditorCommandResult::Failure(error);
+	}
+	renderer->ClearMaterialInstance();
+	return EditorCommandResult::Success(DescribeMaterialInstance(*renderer));
 }
 
 // 自作シェーダーの一覧: Data 配下の .hlsl(とエンジン同梱の engine:〜)と、登録済み(どれかのマテリアルが使った)もののコンパイルの状態。
@@ -200,6 +267,11 @@ void RegisterMaterialCommands(EditorCommandRegistry& registry) {
 	registry.Register("material.set", "material.set <マテリアルのパス> <キー> <値>",
 	                  "マテリアルのフィールドを書き換えて保存し、使っているオブジェクトへ反映する(Undo 不可。例: material.set Materials/Toon.material.json shaderModel 8)",
 	                  CommandMaterialSet);
+	registry.Register("material.instance.set", "material.instance.set <オブジェクト> <キー> <値>",
+	                  "そのオブジェクトの ModelRendererComponent だけのマテリアル(インスタンス)にして 1 つ書き換える。アセットとほかのオブジェクトは変わらない(保存されず、Play を止めると戻る。Undo 不可)",
+	                  CommandMaterialInstanceSet);
+	registry.Register("material.instance.clear", "material.instance.clear <オブジェクト>", "インスタンスをやめて、参照しているアセットのマテリアルへ戻す",
+	                  CommandMaterialInstanceClear);
 	registry.Register("shader.list", "shader.list", "自作シェーダー(Data 配下の .hlsl)の一覧と、コンパイルの成否・エラー", CommandShaderList);
 	registry.Register("shader.create", "shader.create [名前]", "自作シェーダーのひな形を Data/Shaders/<名前>.hlsl に作る(Material の Inspector の New と同じ)", CommandShaderCreate);
 	registry.Register("shader.reload", "shader.reload", "自作シェーダーをすべてコンパイルし直す(保存すれば自動でも読み直す)", CommandShaderReload);
