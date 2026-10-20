@@ -102,6 +102,24 @@ Project でマテリアルを選ぶと Inspector に出る。CUI では `materia
   - `Point Sampling`(`pointSampling`): テクスチャをぼかさずに読む(粗いテクスチャをドットのまま見せる)
 - 落ち影(物が地面に落とす影)はない。段と影の色は、物体の光が当たらない側(陰)にかかる
 
+### ゲーム中に 1 つだけマテリアルを変える(マテリアルのインスタンス)
+
+Material アセットは、それを使う全部のオブジェクトで共通(Inspector や `material.set` で変えると全部が変わり、ファイルにも保存される)。ゲーム中に 1 体だけ見た目を変えるときは、ModelRendererComponent の**インスタンス**を使う(Unity の `renderer.material` と同じ)。
+
+```cpp
+MaterialAssetData material = renderer->GetMaterial(); // 今のマテリアルの写し
+material.baseColor = {1.0f, 0.0f, 0.0f, 1.0f};
+material.shaderParams[0].x = 0.5f;
+renderer->SetMaterialInstance(material);              // このオブジェクトだけが変わる
+renderer->ClearMaterialInstance();                    // アセットのマテリアルに戻す
+```
+
+- アセットのファイルは書き換えない。同じアセットを使うほかのオブジェクトも変わらない
+- インスタンスにした後は、アセットの編集(Material の Inspector・`material.set`)はそのオブジェクトに届かない。Material アセットを付け直すと(`SetMaterialPath`・ドロップ)インスタンスはやめになる
+- 保存はしない(シーン・プレハブの保存やホットリロードでは、インスタンスにする前の値が書かれる)。Play を止めると元に戻る。アセットを付けていない(埋め込みマテリアルの)オブジェクトも、`ClearMaterialInstance` でインスタンスにする前の値へ戻る。インスタンスになっているオブジェクトは、Inspector の Material の下に `(Instance: このオブジェクトだけ)` と出る(**Revert Material Instance** で戻す)
+- 色・発光だけを毎フレーム変える演出は、今までどおり `SetColorOverride` / `SetEmissiveOverride` でもよい
+- CUI: `material.instance.set <オブジェクト> <キー> <値>`(キー名は `material.set` と同じ)、`material.instance.clear <オブジェクト>`
+
 ### ドット絵化
 
 - メインカメラの CameraComponent の **Pixel Size**(`pixelSize`)を 2 以上にすると、Game ビューの 3D を 1/Pixel Size の解像度で描き、ぼかさずに拡大する(1 ドット = Pixel Size × Pixel Size ピクセル)。1 で通常の解像度

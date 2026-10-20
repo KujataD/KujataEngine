@@ -143,6 +143,8 @@ std::filesystem::path ModelRendererComponent::ResolveModelFilePath() const {
 }
 
 void ModelRendererComponent::SetMaterialAsset(const std::string& materialAssetId, const std::string& materialPath) {
+	// アセットを付け直したら、このオブジェクトだけのマテリアルはやめる(付けたアセットの値で描く)。
+	materialInstanced_ = false;
 	materialAssetId_ = materialAssetId;
 	materialPath_ = materialPath;
 
@@ -176,7 +178,8 @@ bool ModelRendererComponent::ApplyMaterialAsset(const std::string& materialPath)
 }
 
 bool ModelRendererComponent::UsesMaterialAsset(const std::string& materialPath) const {
-	if (materialAssetId_.empty() && materialPath_.empty()) {
+	// インスタンスはアセットから切り離してあるので、アセットの編集を受け取らない。
+	if (materialInstanced_ || (materialAssetId_.empty() && materialPath_.empty())) {
 		return false;
 	}
 
@@ -188,6 +191,27 @@ bool ModelRendererComponent::UsesMaterialAsset(const std::string& materialPath) 
 	}
 
 	return targetPath.lexically_normal() == currentPath.lexically_normal();
+}
+
+void ModelRendererComponent::SetMaterialInstance(const MaterialAssetData& material) {
+	// 2 回目からは、最初にインスタンスにする前の値を取っておく(インスタンスの値で上書きしない)。
+	if (!materialInstanced_) {
+		materialBeforeInstance_ = material_;
+	}
+	material_ = material;
+	materialInstanced_ = true;
+	ApplyMaterialToModel();
+}
+
+void ModelRendererComponent::ClearMaterialInstance() {
+	if (!materialInstanced_) {
+		return;
+	}
+	materialInstanced_ = false;
+	material_ = materialBeforeInstance_;
+	// アセットを参照していれば、インスタンスの間にアセットが編集されていても今の値で描く。
+	material_ = GetActiveMaterial();
+	ApplyMaterialToModel();
 }
 
 void ModelRendererComponent::SetSubMeshUVTransform(size_t subMeshIndex, const Vector2& offset, const Vector2& scale, float rotation) {
@@ -350,6 +374,14 @@ void ModelRendererComponent::DrawInspector() {
 	} else {
 		InspectorUI::TextUnformatted(materialPath_.c_str());
 	}
+	if (materialInstanced_) {
+		InspectorUI::TextDisabled("(Instance: このオブジェクトだけ)");
+		InspectorUI::ItemTooltip("ゲーム中に SetMaterialInstance で、このオブジェクトだけのマテリアルにしてある。アセットの編集は届かない。Play を止めると元に戻る");
+		if (InspectorUI::Button("Revert Material Instance")) {
+			ClearMaterialInstance();
+		}
+		InspectorUI::ItemTooltip("インスタンスをやめて、参照しているアセットのマテリアルへ戻す");
+	}
 
 	// サブメッシュ別UVトランスフォーム(MultiMesh時のみ)。マテリアル/テクスチャは.mtl由来のまま、
 	// パーツごとにUVだけを調整できる。
@@ -407,7 +439,8 @@ void ModelRendererComponent::WriteJson(nlohmann::json& json) const {
 	json["cameraLocalZ"] = cameraLocalZ_;
 
 	nlohmann::json materialJson;
-	MaterialAsset::WriteJsonObject(materialJson, material_);
+	// インスタンスは保存しない(シーン・プレハブ・Play 開始時の控えには、インスタンスにする前の値を書く)。
+	MaterialAsset::WriteJsonObject(materialJson, materialInstanced_ ? materialBeforeInstance_ : material_);
 	json["material"] = materialJson;
 
 	// サブメッシュ別UVトランスフォーム(既定値のみなら省略してJSONを汚さない)。
@@ -432,6 +465,8 @@ void ModelRendererComponent::WriteJson(nlohmann::json& json) const {
 }
 
 void ModelRendererComponent::ReadJson(const nlohmann::json& json) {
+	// インスタンスは保存しないので、読み直したらアセットの値へ戻す(Play を止めたときのシーンの復元もここを通る)。
+	materialInstanced_ = false;
 	std::string primitiveName = ReadString(json, "primitive", GetPrimitiveName());
 	modelAssetId_ = ReadString(json, "modelAssetId", "");
 	std::string storedModelPath = ReadString(json, "modelPath", modelPath_);
@@ -558,7 +593,7 @@ void ModelRendererComponent::ApplyMaterialToModel() {
 	model_->SetShaderParams(material_.shaderParams);
 
 	// 色/テクスチャの上書き方針(方式B):
-	//  - Material Assetを参照している場合は、Unityの共有Material同様に全サブメッシュを一括上書き。
+	//  - Material Assetを参照している場合(インスタンスも、元のアセットの参照が残るので同じ)は、Unityの共有Material同様に全サブメッシュを一括上書き。
 	//  - 参照なし(埋め込み)でも、単一メッシュ(プリミティブや単一OBJ)は従来通りbaseColor/textureを適用。
 	//  - 参照なし かつ MultiMesh のときだけ、モデル側のパーツ別マテリアル/テクスチャを尊重する。
 	bool hasMaterialAsset = !materialAssetId_.empty() || !materialPath_.empty();
@@ -593,6 +628,10 @@ void ModelRendererComponent::ApplySubMeshUVTransforms() {
 }
 
 MaterialAssetData ModelRendererComponent::GetActiveMaterial() const {
+	// インスタンスはこのオブジェクトの持ち物なので、アセットを読み直して上書きしない。
+	if (materialInstanced_) {
+		return material_;
+	}
 	std::filesystem::path resolvedPath = ResolveMaterialPath();
 	if (!resolvedPath.empty()) {
 		std::string message;

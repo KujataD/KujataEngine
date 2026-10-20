@@ -71,6 +71,21 @@ public:
 
 	bool UsesMaterialAsset(const std::string& materialPath) const override;
 
+	/// <summary>今使っているマテリアル(インスタンスがあればそれ、無ければアセットから読んだ値)。</summary>
+	const MaterialAssetData& GetMaterial() const { return material_; }
+
+	/// <summary>
+	/// このオブジェクトだけのマテリアル(インスタンス)に差し替える。**Material アセットは書き換えず、同じアセットを使うほかのオブジェクトも変わらない。**
+	/// 以後、アセットの編集(Material の Inspector・material.set)はこのオブジェクトへ届かない。
+	/// Play を止めるとシーンの読み直しで元(アセット)に戻る。使い方: GetMaterial() で写しを取り、値を変えてから渡す。
+	/// </summary>
+	void SetMaterialInstance(const MaterialAssetData& material);
+
+	/// <summary>インスタンスをやめて、参照しているアセットのマテリアルへ戻す(アセットを参照していなければ、インスタンスにする前の値へ戻す)。</summary>
+	void ClearMaterialInstance();
+
+	bool HasMaterialInstance() const { return materialInstanced_; }
+
 	/// <summary>
 	/// サブメッシュ別UVトランスフォーム。パーツのマテリアル/テクスチャは.mtl由来のものを維持したまま、
 	/// UVだけを個別に調整する(MultiMeshモデル用)。
@@ -209,6 +224,11 @@ private:
 	std::string materialAssetId_;
 	std::string materialPath_;
 	MaterialAssetData material_ = MaterialAsset::CreateDefault();
+	// material_ がこのオブジェクトだけのマテリアル(インスタンス)か。true の間はアセットを読み直さない(シリアライズしない)。
+	bool materialInstanced_ = false;
+	// インスタンスにする直前のマテリアル。インスタンスの間は保存にこちらを書き、ClearMaterialInstance でこれへ戻す
+	// (アセットを参照していない埋め込みマテリアルは、これが無いと元の値が分からない)。
+	MaterialAssetData materialBeforeInstance_;
 	// サブメッシュ別UVトランスフォーム(index=サブメッシュ順)。マテリアル/テクスチャは.mtl由来を維持する。
 	std::vector<SubMeshUVTransform> subMeshUVTransforms_;
 	bool billboardEnabled_ = false;
